@@ -1,5 +1,5 @@
 {
-	"name": "bootstrap-email",
+	"name": "@knopkem/bootstrap-email",
 	"version": "1.2.9",
 	"description": "Convert a bootstrap-like template into email-compatible table layout",
 	"keywords": [
@@ -11,44 +11,29 @@
 		"newsletter"
 	],
 	"main": "src/BootstrapEmail.js",
-	"directories": {
-		"test": "test",
-		"doc": "docs"
-	},
 	"scripts": {
-		"prepublish": "npm test && npm run generate-docs",
-		"test": "echo tests are currently disabled due to a compatibility bug with cheerio and chai-cheerio",
-		"test:mocha": "mocha ./test/**/*.spec.js",
-		"generate-docs": "jsdoc --configure jsdoc.json --verbose",
 		"examples": "node examples/index.js"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/schwarzdavid/bootstrap-email.git"
+		"url": "git+https://github.com/knopkem/bootstrap-email.git"
 	},
 	"author": "David Schwarz <schwarz.david10@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/schwarzdavid/bootstrap-email/issues"
+		"url": "https://github.com/knopkem/bootstrap-email.git/issues"
 	},
-	"homepage": "https://github.com/schwarzdavid/bootstrap-email#readme",
+	"homepage": "https://github.com/knopkem/bootstrap-email.git#readme",
 	"dependencies": {
-		"bunyan": "^1.8.12",
-		"cheerio": "^1.0.0-rc.10",
-		"ejs": "^2.6.1",
-		"juice": "^5.2.0",
+		"bunyan": "^1.8.15",
+		"cheerio": "1.0.0-rc.10",
+		"ejs": "^3.1.9",
+		"juice": "^10.0.0",
 		"lodash": "^4.17.21",
-		"postcss": "^7.0.25",
-		"sass": "^1.49.9",
-		"sass-extract": "github:schwarzdavid/sass-extract#v2.2.1"
-	},
-	"devDependencies": {
-		"chai": "^4.2.0",
-		"chai-cheerio": "^1.0.0",
-		"chai-things": "^0.2.0",
-		"jsdoc": "^3.6.3",
-		"jsdoc-chameleon-template": "^1.0.2",
-		"jsdoc-fresh": "^1.0.2",
-		"mocha": "^6.2.2"
+		"postcss": "^8.4.35",
+		"sass": "^1.71.1",
+		"sass-extract": "github:schwarzdavid/sass-extract#v2.2.1",
+		"tsc": "^2.0.4",
+		"typescript": "^5.3.3"
 	}
 }
