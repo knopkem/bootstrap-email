@@ -436,8 +436,9 @@ class BootstrapEmail {
 			}
 		} else {
 			const css = fs.readFileSync(stylePath, 'utf8');
+			const vars = {};
 			this._logger.debug(stylePath + ' read successfully');
-			return {css};
+			return {css, vars};
 		}
 	}
 }
