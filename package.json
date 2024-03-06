@@ -1,6 +1,6 @@
 {
 	"name": "@knopkem/bootstrap-email",
-	"version": "1.2.10",
+	"version": "1.2.11",
 	"description": "Convert a bootstrap-like template into email-compatible table layout",
 	"keywords": [
 		"email",
@@ -32,8 +32,6 @@
 		"lodash": "^4.17.21",
 		"postcss": "^8.4.35",
 		"sass": "^1.71.1",
-		"sass-extract": "github:schwarzdavid/sass-extract#v2.2.1",
-		"tsc": "^2.0.4",
-		"typescript": "^5.3.3"
+		"sass-extract": "github:schwarzdavid/sass-extract#v2.2.1"
 	}
 }
