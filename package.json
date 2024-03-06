@@ -1,6 +1,6 @@
 {
 	"name": "@knopkem/bootstrap-email",
-	"version": "1.2.9",
+	"version": "1.2.10",
 	"description": "Convert a bootstrap-like template into email-compatible table layout",
 	"keywords": [
 		"email",
