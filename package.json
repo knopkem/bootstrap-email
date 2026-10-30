@@ -12,7 +12,8 @@
 	],
 	"main": "src/BootstrapEmail.js",
 	"scripts": {
-		"examples": "node examples/index.js"
+		"examples": "node examples/index.js",
+		"test": "node --test"
 	},
 	"repository": {
 		"type": "git",
