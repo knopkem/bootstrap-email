@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const {pathToFileURL} = require('url');
 const cheerio = require('cheerio').default;
 const sass = require('sass');
-const sassExtract = require('sass-extract');
 const postcss = require('postcss');
 const extractHeaderCss = require('./lib/PostcssInlineStylesPlugin');
 const bunyan = require('bunyan');
@@ -53,6 +53,9 @@ const __defaultConfig = {
 const __styleVariables = {
 	[STYLE_VARIABLES.COLUMNS]: 12
 };
+
+const SASS_VARIABLE_PROBE_SELECTOR = '#bootstrap-email-sass-variables';
+const SASS_META_NAMESPACE = '__bootstrapEmailMeta';
 
 class BootstrapEmail {
 
@@ -421,25 +424,90 @@ class BootstrapEmail {
 		if (['.scss', '.sass'].includes(path.extname(stylePath))) {
 			this._logger.debug(stylePath + ' detected as sass-file');
 
-			const rendered = sassExtract.renderSync({
-				file: stylePath,
-				outputStyle: 'compressed'
-			}, {
-				implementation: sass
-			});
+			const {css, vars} = this._compileSass(stylePath);
 
 			this._logger.debug(stylePath + ' read and parsed successfully');
 
-			return {
-				css: rendered.css.toString(),
-				vars: rendered.vars.global
-			}
+			return {css, vars};
 		} else {
 			const css = fs.readFileSync(stylePath, 'utf8');
 			const vars = {};
 			this._logger.debug(stylePath + ' read successfully');
 			return {css, vars};
 		}
+	}
+
+	/**
+	 * Compiles a sass file and extracts the configured sass variables.
+	 *
+	 * The variables are exposed as css custom properties by a probe rule which is
+	 * appended to the stylesheet. This allows reading them back from the compiled
+	 * css without using the deprecated sass legacy api.
+	 *
+	 * @param {string} stylePath
+	 * @return {{css: string, vars: Object}}
+	 * @private
+	 */
+	_compileSass(stylePath) {
+		const syntax = path.extname(stylePath) === '.sass' ? 'indented' : 'scss';
+		const source = fs.readFileSync(stylePath, 'utf8');
+		const variableNames = Object.keys(this._vars).map(name => name.replace(/^\$/, ''));
+		const useMeta = syntax === 'scss'
+			? `@use "sass:meta" as ${SASS_META_NAMESPACE};`
+			: `@use "sass:meta" as ${SASS_META_NAMESPACE}`;
+		const probe = this._createSassVariableProbe(variableNames, syntax);
+
+		const rendered = sass.compileString(`${useMeta}\n${source}\n${probe}`, {
+			syntax,
+			style: 'compressed',
+			url: pathToFileURL(stylePath)
+		});
+
+		const root = postcss.parse(rendered.css);
+		const vars = {};
+
+		root.walkRules(rule => {
+			if (rule.selector !== SASS_VARIABLE_PROBE_SELECTOR) {
+				return;
+			}
+
+			rule.walkDecls(declaration => {
+				vars['$' + declaration.prop.slice(2)] = {
+					value: declaration.value.trim()
+				};
+			});
+			rule.remove();
+		});
+
+		return {
+			css: root.toString(),
+			vars
+		};
+	}
+
+	/**
+	 * Creates a css rule which exposes sass variables as custom properties
+	 * @param {string[]} variableNames
+	 * @param {string} syntax
+	 * @return {string}
+	 * @private
+	 */
+	_createSassVariableProbe(variableNames, syntax) {
+		if (syntax === 'scss') {
+			const declarations = variableNames.map(name => {
+				const sassName = '$' + name;
+				return `  @if ${SASS_META_NAMESPACE}.variable-exists(${name}) { --${name}: #{${sassName}}; }`;
+			});
+			return [SASS_VARIABLE_PROBE_SELECTOR + ' {', ...declarations, '}'].join('\n');
+		}
+
+		const declarations = [];
+		variableNames.forEach(name => {
+			const sassName = '$' + name;
+			declarations.push(`  @if ${SASS_META_NAMESPACE}.variable-exists(${name})`);
+			declarations.push(`    --${name}: #{${sassName}}`);
+		});
+		return [SASS_VARIABLE_PROBE_SELECTOR, ...declarations].join('\n');
 	}
 }
 
